@@ -1,12 +1,12 @@
 # Uncomment the imports below before you add the function code
-# import requests
+import requests
 import os
 from dotenv import load_dotenv
+import urllib.parse
 
 load_dotenv()
 
-backend_url = os.getenv(
-    'backend_url', default="https://jfmiguez-3030.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai")
+backend_url = "https://jfmiguez-3030.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai"
 sentiment_analyzer_url = os.getenv(
     'https://sentianalyzer.291as7mycbiq.us-south.codeengine.appdomain.cloud',
     default="http://localhost:5050/")
@@ -22,7 +22,7 @@ def get_request(endpoint, **kwargs):
     print("GET from {} ".format(request_url))
     try:
         # Call get method of requests library with URL and parameters
-        response = requests.get(request_url)
+        response = requests.get(request_url, verify=False)
         return response.json()
     except:
         # If any error occurs
@@ -31,14 +31,14 @@ def get_request(endpoint, **kwargs):
 # Add code for get requests to back end
 
 def analyze_review_sentiments(text):
-    request_url = sentiment_analyzer_url+"analyze/"+text
     try:
-        # Call get method of requests library with URL and parameters
-        response = requests.get(request_url)
+        import urllib.parse
+        request_url = sentiment_analyzer_url + "analyze/" + urllib.parse.quote(text)
+        response = requests.get(request_url, verify=False)
         return response.json()
-    except Exception as err:
-        print(f"Unexpected {err=}, {type(err)=}")
-        print("Network exception occurred")
+    except Exception as e:
+        print("Sentiment error:", e)
+        return {"sentiment": "neutral"}
 
 def post_review(data_dict):
     request_url = backend_url+"/insert_review"
